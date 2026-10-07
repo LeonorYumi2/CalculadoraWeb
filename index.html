@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1426">
+  <meta name="description" content="Calculadora interactiva de notas para estudiantes de la Escuela Politécnica Nacional.">
+  <title>Calculadora de notas | EPN</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --background: #080f1d;
+      --surface: #111d32;
+      --surface-raised: #172640;
+      --border: #293a56;
+      --text: #f4f7fc;
+      --muted: #a9b6cb;
+      --blue: #4388ff;
+      --blue-light: #8ab5ff;
+      --red: #ed5362;
+      --green: #4bd3a2;
+      --amber: #ffc56b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      padding: 40px 20px;
+      display: grid;
+      place-items: center;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at 12% 10%, rgb(40 93 176 / 18%), transparent 36%),
+        radial-gradient(ellipse at 88% 88%, rgb(190 52 71 / 12%), transparent 34%),
+        var(--background);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .app {
+      width: min(100%, 560px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 22px 4px;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgb(138 181 255 / 38%);
+      border-radius: 13px;
+      color: var(--blue-light);
+      background: rgb(67 136 255 / 12%);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .04em;
+    }
+
+    .brand-name {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    .brand-caption {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .card {
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: linear-gradient(155deg, rgb(20 34 57 / 98%), rgb(13 24 42 / 98%));
+      box-shadow: 0 28px 80px rgb(0 0 0 / 34%);
+    }
+
+    .card-header {
+      padding: 30px 32px 24px;
+      border-bottom: 1px solid rgb(169 182 203 / 12%);
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 11px;
+      color: var(--blue-light);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 12px rgb(237 83 98 / 60%);
+      content: "";
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(25px, 6vw, 32px);
+      letter-spacing: -.04em;
+      line-height: 1.15;
+    }
+
+    .intro {
+      max-width: 430px;
+      margin: 11px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    form {
+      padding: 26px 32px 30px;
+    }
+
+    .fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 9px;
+      color: #dce5f4;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    input {
+      width: 100%;
+      height: 54px;
+      padding: 0 50px 0 15px;
+      border: 1px solid #344663;
+      border-radius: 12px;
+      outline: none;
+      color: var(--text);
+      background: #0c1729;
+      font: inherit;
+      font-size: 18px;
+      font-variant-numeric: tabular-nums;
+      transition: border-color .18s ease, box-shadow .18s ease;
+    }
+
+    input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgb(67 136 255 / 18%);
+    }
+
+    input::placeholder {
+      color: #71819a;
+    }
+
+    .unit {
+      position: absolute;
+      top: 50%;
+      right: 14px;
+      color: #91a1ba;
+      font-size: 12px;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    .hint {
+      margin: 8px 0 0;
+      color: #8999b2;
+      font-size: 11px;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    button {
+      min-height: 48px;
+      border: 0;
+      border-radius: 12px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 750;
+      transition: transform .15s ease, background-color .15s ease, opacity .15s ease;
+    }
+
+    button:focus-visible {
+      outline: 3px solid var(--blue-light);
+      outline-offset: 3px;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .calculate {
+      flex: 1;
+      color: white;
+      background: linear-gradient(110deg, #3479f6, #4c91ff);
+      box-shadow: 0 8px 22px rgb(52 121 246 / 22%);
+    }
+
+    .calculate:hover {
+      background: linear-gradient(110deg, #4386ff, #63a0ff);
+    }
+
+    .reset {
+      padding: 0 12px;
+      color: #b7c3d5;
+      background: transparent;
+    }
+
+    .reset:hover {
+      color: white;
+      background: rgb(255 255 255 / 6%);
+    }
+
+    .result {
+      margin: 0 32px 30px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      background: rgb(7 15 28 / 55%);
+    }
+
+    .result[hidden] {
+      display: none;
+    }
+
+    .result-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .result-label {
+      margin: 0 0 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .total {
+      margin: 0;
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -.04em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .total small {
+      color: #98a8c0;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0;
+    }
+
+    .badge {
+      max-width: 160px;
+      padding: 8px 10px;
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 750;
+      line-height: 1.3;
+      text-align: center;
+    }
+
+    .result-pass {
+      border-color: rgb(75 211 162 / 32%);
+      background: linear-gradient(145deg, rgb(18 56 57 / 42%), rgb(7 15 28 / 55%));
+    }
+
+    .result-pass .badge,
+    .result-pass .result-message {
+      color: var(--green);
+    }
+
+    .result-exam {
+      border-color: rgb(255 197 107 / 32%);
+      background: linear-gradient(145deg, rgb(66 48 29 / 30%), rgb(7 15 28 / 55%));
+    }
+
+    .result-exam .badge,
+    .result-exam .result-message {
+      color: var(--amber);
+    }
+
+    .result-fail {
+      border-color: rgb(237 83 98 / 35%);
+      background: linear-gradient(145deg, rgb(66 30 43 / 34%), rgb(7 15 28 / 55%));
+    }
+
+    .result-fail .badge,
+    .result-fail .result-message {
+      color: #ff8791;
+    }
+
+    .result-message {
+      margin: 14px 0 0;
+      font-size: 14px;
+      font-weight: 650;
+      line-height: 1.55;
+    }
+
+    .exam-needed {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 15px;
+      border-top: 1px solid rgb(255 255 255 / 10%);
+    }
+
+    .exam-needed p {
+      margin: 0;
+      color: #dce5f4;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .exam-score {
+      flex: 0 0 auto;
+      color: var(--text);
+      font-size: 19px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+
+    .exam-score span {
+      display: block;
+      margin-top: 2px;
+      color: #aab8cc;
+      font-size: 11px;
+      font-weight: 550;
+    }
+
+    .scale {
+      margin: 0 32px;
+      padding: 16px 0 20px;
+      border-top: 1px solid rgb(169 182 203 / 12%);
+    }
+
+    .scale-title {
+      margin: 0 0 10px;
+      color: #bcc8d9;
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .scale-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      color: #91a1ba;
+      font-size: 11px;
+    }
+
+    .scale-items strong {
+      color: #e1e9f5;
+      font-weight: 700;
+    }
+
+    footer {
+      margin: 16px 4px 0;
+      color: #7e8da5;
+      font-size: 11px;
+      line-height: 1.55;
+      text-align: center;
+    }
+
+    @media (max-width: 520px) {
+      body {
+        padding: 26px 14px;
+      }
+
+      .card-header {
+        padding: 24px 22px 20px;
+      }
+
+      form {
+        padding: 22px;
+      }
+
+      .fields {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .result {
+        margin: 0 22px 24px;
+      }
+
+      .scale {
+        margin: 0 22px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="brand" aria-label="Escuela Politécnica Nacional">
+      <div class="brand-mark" aria-hidden="true">EPN</div>
+      <div>
+        <p class="brand-name">Escuela Politécnica Nacional</p>
+        <p class="brand-caption">Herramienta académica para estudiantes</p>
+      </div>
+    </header>
+
+    <section class="card" aria-labelledby="page-title">
+      <div class="card-header">
+        <p class="eyebrow">Calculadora académica</p>
+        <h1 id="page-title">Calcula tu nota final</h1>
+        <p class="intro">Ingresa tus calificaciones de los dos bimestres para conocer tu resultado y, si aplica, cuánto necesitas en el supletorio.</p>
+      </div>
+
+      <form id="grade-form">
+        <div class="fields">
+          <div class="field">
+            <label for="first-grade">Nota primer bimestre</label>
+            <div class="input-wrap">
+              <input id="first-grade" name="first-grade" type="number" min="0" max="20" step="0.01" placeholder="0.00" inputmode="decimal" required aria-describedby="grade-hint">
+              <span class="unit">/ 20</span>
+            </div>
+            <p class="hint" id="grade-hint">Ingresa una nota entre 0 y 20.</p>
+          </div>
+          <div class="field">
+            <label for="second-grade">Nota segundo bimestre</label>
+            <div class="input-wrap">
+              <input id="second-grade" name="second-grade" type="number" min="0" max="20" step="0.01" placeholder="0.00" inputmode="decimal" required aria-describedby="grade-hint">
+              <span class="unit">/ 20</span>
+            </div>
+            <p class="hint">Ingresa una nota entre 0 y 20.</p>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="calculate" type="submit">Calcular resultado</button>
+          <button class="reset" id="reset-button" type="reset">Limpiar</button>
+        </div>
+      </form>
+
+      <section class="result" id="result" aria-live="polite" aria-atomic="true" hidden>
+        <div class="result-top">
+          <div>
+            <p class="result-label">Suma de los dos bimestres</p>
+            <p class="total"><span id="total-score">0.00</span> <small>/ 40</small></p>
+          </div>
+          <span class="badge" id="status-badge"></span>
+        </div>
+        <p class="result-message" id="result-message"></p>
+        <div class="exam-needed" id="exam-needed" hidden>
+          <p>Nota mínima que necesitas en el examen supletorio:</p>
+          <div class="exam-score">
+            <span id="exam-score-40">0.00</span> / 40
+            <span id="exam-score-20">Equivale a 0.00 / 20</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="scale" aria-label="Criterios de calificación">
+        <p class="scale-title">Criterios de calificación</p>
+        <div class="scale-items">
+          <span><strong>28–40:</strong> aprobación directa</span>
+          <span><strong>18–&lt;28:</strong> supletorio</span>
+          <span><strong>&lt;18:</strong> pérdida directa</span>
+        </div>
+      </aside>
+    </section>
+
+    <footer>Calculadora orientativa basada en los criterios indicados. Verifica cualquier caso especial con tu unidad académica.</footer>
+  </main>
+
+  <script>
+    const form = document.querySelector("#grade-form");
+    const firstGradeInput = document.querySelector("#first-grade");
+    const secondGradeInput = document.querySelector("#second-grade");
+    const result = document.querySelector("#result");
+    const totalScore = document.querySelector("#total-score");
+    const statusBadge = document.querySelector("#status-badge");
+    const resultMessage = document.querySelector("#result-message");
+    const examNeeded = document.querySelector("#exam-needed");
+    const examScore40 = document.querySelector("#exam-score-40");
+    const examScore20 = document.querySelector("#exam-score-20");
+
+    const formatScore = (hundredths) => (hundredths / 100).toFixed(2);
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+
+      const firstGrade = Math.round(Number(firstGradeInput.value) * 100);
+      const secondGrade = Math.round(Number(secondGradeInput.value) * 100);
+      const total = firstGrade + secondGrade;
+
+      totalScore.textContent = formatScore(total);
+      result.classList.remove("result-pass", "result-exam", "result-fail");
+      examNeeded.hidden = true;
+
+      if (total >= 2800) {
+        result.classList.add("result-pass");
+        statusBadge.textContent = "Aprobado";
+        resultMessage.textContent = "¡Felicitaciones! Aprobaste la materia directamente, sin supletorio.";
+      } else if (total < 1800) {
+        result.classList.add("result-fail");
+        statusBadge.textContent = "Pérdida directa";
+        resultMessage.textContent = "Tu nota es menor a 18/40; según estos criterios, perdiste la materia directamente.";
+      } else {
+        // Se aprueba si el promedio entre la suma de bimestres y el supletorio es >= 24/40,
+        // es decir: suma + supletorio >= 48.
+        const needed = Math.min(4800 - total, 4000);
+        result.classList.add("result-exam");
+        statusBadge.textContent = "Requiere supletorio";
+        resultMessage.textContent = "Aún puedes aprobar la materia. El promedio entre tu suma de bimestres y el supletorio debe ser de al menos 24/40.";
+        examNeeded.hidden = false;
+        examScore40.textContent = formatScore(needed);
+        examScore20.textContent = `Equivale a ${formatScore(needed / 2)} / 20`;
+      }
+
+      result.hidden = false;
+    });
+
+    form.addEventListener("reset", () => {
+      result.hidden = true;
+      examNeeded.hidden = true;
+      result.classList.remove("result-pass", "result-exam", "result-fail");
+    });
+  </script>
+</body>
+</html>
